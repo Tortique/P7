@@ -11,7 +11,7 @@ st.title("🔍 Prédiction de Solvabilité")
 # 🏦 Fonction pour récupérer les données du client avec mise en cache
 @st.cache_data(ttl=60)
 def get_client_data(client_id):
-    API_DATA_URL = f"http://localhost:8000/client/{client_id}"
+    API_DATA_URL = f"http://https://p7-ywri.onrender.com/client/{client_id}"
     response = requests.get(API_DATA_URL)
     if response.status_code == 200:
         return response.json()
@@ -40,7 +40,7 @@ if "client_data" in st.session_state:
 
     # Bouton pour prédire la solvabilité
     if st.button("🔮 Prédire la solvabilité"):
-        API_PREDICT_URL = "http://localhost:8000/predict"  # URL de ton API
+        API_PREDICT_URL = "http://https://p7-ywri.onrender.com/predict"  # URL de ton API
         response = requests.post(API_PREDICT_URL, json={'id_client': client_id})
 
         if response.status_code == 200:
