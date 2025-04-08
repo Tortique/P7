@@ -33,11 +33,11 @@ async def predict(request: ClientRequest):
 
     scaled_features = scaler.transform(client_data)
 
-    prediction = model.predict(scaled_features)
+    prediction = model.predict_proba(scaled_features)[:, 1]
 
     if isinstance(prediction, np.ndarray):
         prediction = prediction.tolist()  # Convertir en liste Python
-    elif isinstance(prediction, (np.int64, np.int32)):
+    if isinstance(prediction, (np.int64, np.int32)):
         prediction = int(prediction)  # Convertir en int natif
 
     return {"id_client": client_id, "prediction": prediction}
