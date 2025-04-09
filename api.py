@@ -16,7 +16,6 @@ if not hasattr(model, "predict"):
 print(f"📊 Modèle sélectionné : {model}")
 print(f"🔍 Type du modèle : {type(model)}")
 print(f"📢 Le modèle est-il entraîné ? {hasattr(model, 'booster_')}")
-df_test = pd.DataFrame(df_test)
 class ClientRequest(BaseModel):
     id_client: int
 
@@ -24,9 +23,9 @@ class ClientRequest(BaseModel):
 async def predict(request: ClientRequest):
     client_id = request.id_client
 
-    df_test[0] = pd.to_numeric(df_test[0], errors='coerce')
+    df_test["SK_ID_CURR"] = pd.to_numeric(df_test["SK_ID_CURR"], errors='coerce')
 
-    client_data = df_test[df_test[0] == client_id]
+    client_data = df_test[df_test["SK_ID_CURR"] == client_id]
 
     if client_data.empty:
         raise HTTPException(status_code=404, detail="Client non trouvé")
@@ -44,16 +43,16 @@ async def predict(request: ClientRequest):
 
 @app.get("/get_first")
 def get_first():
-    df_test[0] = pd.to_numeric(df_test[0], errors='coerce')
+    df_test["SK_ID_CURR"] = pd.to_numeric(df_test["SK_ID_CURR"], errors='coerce')
     return df_test.head(10).to_dict(orient="records")
 
 @app.get("/client/{client_id}")
 def get_client(client_id: int):
     # Conversion de la colonne id_client en numérique
-    df_test[0] = pd.to_numeric(df_test[0], errors='coerce')
+    df_test["SK_ID_CURR"] = pd.to_numeric(df_test["SK_ID_CURR"], errors='coerce')
 
     # Filtrage des données du client
-    client_data = df_test[df_test[0] == client_id]
+    client_data = df_test[df_test["SK_ID_CURR"] == client_id]
 
     # Vérifier si le client existe
     if client_data.empty:
