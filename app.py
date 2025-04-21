@@ -46,7 +46,7 @@ if "client_data" in st.session_state:
         if response.status_code == 200:
             seuil = 0.78
             prediction = response.json()
-            if prediction["prediction"] < seuil:
+            if prediction["prediction"][0] < seuil:
                 st.success(f"🟢 Résultat : {prediction['prediction']}")
                 st.success(f"Client considéré comme solvable")
             else:
