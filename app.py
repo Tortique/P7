@@ -44,7 +44,13 @@ if "client_data" in st.session_state:
         response = requests.post(API_PREDICT_URL, json={'id_client': client_id})
 
         if response.status_code == 200:
+            seuil = 0.78
             prediction = response.json()
-            st.success(f"🟢 Résultat : {prediction['prediction']}")
+            if prediction["prediction"] < seuil:
+                st.success(f"🟢 Résultat : {prediction['prediction']}")
+                st.success(f"Client considéré comme solvable")
+            else:
+                st.error(f"🔴 Résultat : {prediction['prediction']}")
+                st.error(f"Client considéré comme *non* solvable")
         else:
             st.error("🔴 Erreur lors de la prédiction")

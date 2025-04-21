@@ -1,8 +1,5 @@
-import pandas as pd
-import pytest
 from api import app
 from fastapi.testclient import TestClient
-from api import df_test
 
 client = TestClient(app)
 
