@@ -30,7 +30,7 @@ def test_get_client_found():
     assert response.status_code == 200
     json_data = response.json()
     print(json_data)
-    assert json_data["0"] == 100001
+    assert json_data["SK_ID_CURR"] == 100001
 
 def test_get_client_not_found():
     client_id = 999999  # ID inexistant
