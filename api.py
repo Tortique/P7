@@ -60,3 +60,10 @@ def get_client(client_id: int):
 
     # Retourner les données sous forme de dictionnaire
     return client_data.to_dict(orient="records")[0]
+
+@app.get("/column/{column_name}")
+def get_column(column_name: str):
+    if column_name in df_test.columns:
+        return df_test[column_name].dropna().tolist()
+    else:
+        return {"error": "Colonne non trouvée"}
