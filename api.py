@@ -19,6 +19,10 @@ print(f"📢 Le modèle est-il entraîné ? {hasattr(model, 'booster_')}")
 class ClientRequest(BaseModel):
     id_client: int
 
+class CustomClientRequest(BaseModel):
+    id_client: int
+    modifications: dict
+
 @app.post("/predict")
 async def predict(request: ClientRequest):
     client_id = request.id_client
@@ -67,3 +71,33 @@ def get_column(column_name: str):
         return df_test[column_name].dropna().tolist()
     else:
         return {"error": "Colonne non trouvée"}
+
+@app.post("/predict_custom")
+async def predict_custom(request: CustomClientRequest):
+    client_id = request.id_client
+    mods = request.modifications
+
+    # Récupérer ligne client
+    df_test["SK_ID_CURR"] = pd.to_numeric(df_test["SK_ID_CURR"], errors='coerce')
+    client_data = df_test[df_test["SK_ID_CURR"] == client_id]
+
+    if client_data.empty:
+        raise HTTPException(status_code=404, detail="Client non trouvé")
+
+    # Copier la ligne dans un DataFrame temporaire
+    temp_df = client_data.copy()
+
+    # Appliquer les modifications reçues
+    for key, value in mods.items():
+        if key in temp_df.columns:
+            temp_df.iloc[0, temp_df.columns.get_loc(key)] = value
+
+    # Scaler et prédiction
+    scaled = scaler.transform(temp_df)
+    prediction = model.predict_proba(scaled)[:, 1].tolist()
+
+    return {
+        "id_client": client_id,
+        "prediction": prediction,
+        "modifications_appliquées": mods
+    }
