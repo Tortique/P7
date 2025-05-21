@@ -30,7 +30,16 @@ def get_column_data(column_name):
     url = f"https://p7-ywri.onrender.com/column/{column_name}"
     response = requests.get(url)
     if response.status_code == 200:
-        return pd.DataFrame(response.json())
+        data = response.json()
+
+        if "error" in data:
+            st.error(data["error"])
+        else:
+            # On crée un DataFrame avec la colonne et la prédiction
+            return pd.DataFrame({
+                column_name: data["column_values"],
+                "prediction": data["predictions"][:len(data["column_values"])]  # assure la même taille
+            })
     else:
         st.error(f"Erreur pour la colonne {column_name}")
         return None
@@ -184,14 +193,14 @@ if st.session_state.afficher_donnees and "data" in st.session_state:
                         # Récupération de la distribution
                         df_plot = get_column_data(var)
 
-                        if not df_plot.empty:
+                        if df_plot is not None and not df_plot.empty:
                             df_plot['solvable'] = df_plot['prediction'] < 0.78
 
                             fig, ax = plt.subplots(figsize=(8, 4))
-                            sns.histplot(data=df_plot, x="value", hue='solvable', kde=False, bins=30, ax=ax, palette={True: "#66c2a5", False: "#fc8d62"}, alpha=0.6)
+                            sns.histplot(data=df_plot, x=var, hue='solvable', kde=False, bins=30, ax=ax, palette={True: "#66c2a5", False: "#fc8d62"}, alpha=0.6)
                             ax.axvline(client_value, color='#e41a1c', linestyle='--', label='Client')
                             ax.set_title(f"Distribution de {var} selon la solvabilité prédite")
-                            ax.legend(title="Solvabilité", labels=["Non solvable", "Solvable", "Client"])
+                            ax.legend(title="Solvabilité", labels=["Solvable", "Non solvable", "Client"])
 
                             st.pyplot(fig)
                             st.caption(f"Les distributions montrent les clients solvables et non solvables. La ligne rouge représente la valeur du client.")

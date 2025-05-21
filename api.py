@@ -67,30 +67,30 @@ def get_client(client_id: int):
 
 @app.get("/column/{column_name}")
 def get_column(column_name: str):
-    if column_name in df_test.columns:
-        # Garde uniquement les lignes avec une valeur non nulle pour cette colonne
-        filtered_df = df_test[[column_name, "SK_ID_CURR"]].dropna()
-
-        # Récupère les lignes complètes des clients correspondants pour la prédiction
-        clients_full_data = df_test[df_test["SK_ID_CURR"].isin(filtered_df["SK_ID_CURR"])]
-
-        # Applique le scaler
-        scaled_data = scaler.transform(clients_full_data)
-
-        # Prédictions
-        predictions = model.predict_proba(scaled_data)[:, 1]  # probabilité de solvabilité
-
-        # Construction de la réponse
-        result = []
-        for i, (_, row) in enumerate(filtered_df.iterrows()):
-            result.append({
-                "value": row[column_name],
-                "prediction": float(predictions[i])  # for JSON serialization
-            })
-
-        return result
-    else:
+    if column_name not in df_test.columns:
         return {"error": "Colonne non trouvée"}
+
+    # Récupérer la colonne (sans les valeurs manquantes)
+    column_values = df_test[column_name].dropna().tolist()
+
+    # Préparation des données pour la prédiction (toutes les lignes)
+    df_test_numeric = df_test.copy()
+    df_test_numeric["SK_ID_CURR"] = pd.to_numeric(df_test_numeric["SK_ID_CURR"], errors='coerce')
+
+    # On applique le scaler sur les features (à adapter si besoin, ici on suppose que df_test est prêt)
+    scaled_features = scaler.transform(df_test_numeric)
+
+    # Prédiction pour toutes les lignes
+    predictions = model.predict_proba(scaled_features)[:, 1]
+
+    # Convertir les prédictions en liste Python simple
+    predictions_list = predictions.tolist()
+
+    return {
+        "column_name": column_name,
+        "column_values": column_values,
+        "predictions": predictions_list
+    }
 
 @app.post("/predict_custom")
 async def predict_custom(request: CustomClientRequest):
