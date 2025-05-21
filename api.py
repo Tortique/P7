@@ -68,7 +68,27 @@ def get_client(client_id: int):
 @app.get("/column/{column_name}")
 def get_column(column_name: str):
     if column_name in df_test.columns:
-        return df_test[column_name].dropna().tolist()
+        # Garde uniquement les lignes avec une valeur non nulle pour cette colonne
+        filtered_df = df_test[[column_name, "SK_ID_CURR"]].dropna()
+
+        # Récupère les lignes complètes des clients correspondants pour la prédiction
+        clients_full_data = df_test[df_test["SK_ID_CURR"].isin(filtered_df["SK_ID_CURR"])]
+
+        # Applique le scaler
+        scaled_data = scaler.transform(clients_full_data)
+
+        # Prédictions
+        predictions = model.predict_proba(scaled_data)[:, 1]  # probabilité de solvabilité
+
+        # Construction de la réponse
+        result = []
+        for i, (_, row) in enumerate(filtered_df.iterrows()):
+            result.append({
+                "value": row[column_name],
+                "prediction": float(predictions[i])  # for JSON serialization
+            })
+
+        return result
     else:
         return {"error": "Colonne non trouvée"}
 
