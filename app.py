@@ -66,8 +66,9 @@ modifiable_vars = [
 ]
 
 @st.cache_data
-def load_local_importances(path="local_importances.parquet"):
-    return pd.read_parquet(path)
+def load_local_importances(client_id):
+    df = pd.read_parquet("local_importances.parquet", filters=[("id_client","==",client_id)])
+    return df
 
 @st.cache_data
 def load_global_importance(path="global_importance.json"):
@@ -117,9 +118,6 @@ def get_prediction(score):
 # Initialisation de la session state
 if "afficher_donnees" not in st.session_state:
     st.session_state.afficher_donnees = False
-
-# Initialisation du fichier importances locales
-all_local_importances = load_local_importances()
 
 # Initialisation du fichier importances globales
 global_df = load_global_importance()
@@ -248,19 +246,16 @@ if st.session_state.afficher_donnees and "data" in st.session_state:
                     st.warning("Veuillez sélectionner **au maximum deux variables** pour l'analyse.")
 
     with col_exp2:
-        matching = [item for item in all_local_importances if float(item["id"]) == float(client_id)]
-        if matching:
-            instance_data = matching[0]
+        local_df = load_local_importances(client_id)
+        if not local_df.empty:
             with st.expander("Voir les données les plus importantes"):
-                local_df = pd.DataFrame(instance_data["features"])
                 local_df = local_df.sort_values("importance", key=abs, ascending=False).head(15)
 
                 st.subheader(f"Importance locale pour le client {client_id}")
 
                 features = local_df["feature"]
                 importances = local_df["importance"]
-
-                colors = ['#b22222' if val > 0 else '#2a4d9b' for val in importances]  # rouge si positif, bleu si négatif
+                colors = ['#b22222' if val > 0 else '#2a4d9b' for val in importances]
 
                 fig = go.Figure(go.Bar(
                     x=importances,
@@ -280,7 +275,7 @@ if st.session_state.afficher_donnees and "data" in st.session_state:
 
                 st.plotly_chart(fig, use_container_width=True)
         else:
-            st.error("Aucune Importance locale pour le client")
+            st.error("Aucune importance locale trouvée pour ce client")
     # Bouton pour prédire la solvabilité
     if st.button("🔮 Prédire la solvabilité",
                  help="Score entre 0 et 1, plus le score s'approche de 1 plus le prêt est risqué"):
