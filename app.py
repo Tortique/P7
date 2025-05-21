@@ -200,7 +200,7 @@ if st.session_state.afficher_donnees and "data" in st.session_state:
                             sns.histplot(data=df_plot, x=var, hue='solvable', kde=False, bins=30, ax=ax, palette={True: "#66c2a5", False: "#fc8d62"}, alpha=0.6)
                             ax.axvline(client_value, color='#e41a1c', linestyle='--', label='Client')
                             ax.set_title(f"Distribution de {var} selon la solvabilité prédite")
-                            ax.legend(title="Solvabilité", labels=["Solvable", "Non solvable", "Client"])
+                            ax.legend(title="Solvabilité", labels=["Client", "Solvable", "Non solvable"])
 
                             st.pyplot(fig)
                             st.caption(f"Les distributions montrent les clients solvables et non solvables. La ligne rouge représente la valeur du client.")
@@ -220,34 +220,31 @@ if st.session_state.afficher_donnees and "data" in st.session_state:
                         data1 = get_column_data(var1)
                         data2 = get_column_data(var2)
 
-                        if data1 and data2:
-                            df = pd.DataFrame({
-                                var1: data1['value'],
-                                var2: data2['value'],
-                                "prediction": data1['prediction'],
-                            })
+                        df = pd.DataFrame({
+                            var1: data1[var1],
+                            var2: data2[var2],
+                            "prediction": data1['prediction'],
+                        })
 
-                            fig, ax = plt.subplots(figsize=(6, 6))
+                        fig, ax = plt.subplots(figsize=(6, 6))
 
-                            scatter = ax.scatter(
-                                df[var1], df[var2],
-                                c=df["prediction"],
-                                cmap="coolwarm",
-                                alpha=0.5,
-                                edgecolor="k",
-                                label="Population"
-                            )
+                        scatter = ax.scatter(
+                            df[var1], df[var2],
+                            c=df["prediction"],
+                            cmap="coolwarm",
+                            alpha=0.5,
+                            edgecolor="k",
+                            label="Population"
+                        )
 
-                            ax.scatter(client_val1, client_val2, color='#d95f02', s=100, label='Client', edgecolor='black', linewidth=1.5, zorder=5)
+                        ax.scatter(client_val1, client_val2, color='#d95f02', s=100, label='Client', edgecolor='black', linewidth=1.5, zorder=5)
 
-                            ax.set_title(f"Nuage de points : {var1} vs {var2} (coloré par probabilité de solvabilité)")
-                            ax.legend()
-                            fig.colorbar(scatter, ax=ax, label="Probabilité de solvabilité")
+                        ax.set_title(f"Nuage de points : {var1} vs {var2} (coloré par probabilité de solvabilité)")
+                        ax.legend()
+                        fig.colorbar(scatter, ax=ax, label="Probabilité de solvabilité")
 
-                            st.pyplot(fig)
-                            st.caption(f"Le point rouge indique la position du client dans l’espace `{var1}` vs `{var2}`.")
-                        else:
-                            st.warning("Données insuffisantes pour générer le graphique bi-varié.")
+                        st.pyplot(fig)
+                        st.caption(f"Le point rouge indique la position du client dans l’espace `{var1}` vs `{var2}`.")
                     else:
                         st.warning("Valeur manquante pour le client sur au moins une des deux variables sélectionnées.")
 
