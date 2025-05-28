@@ -116,9 +116,9 @@ def get_prediction(score):
     with col2:
         st.markdown("### 🔎 Légende (risque de crédit)")
         st.markdown("""
-        🟢 **Score < 0.70** : Solvable – Faible risque<br>
-        🟡 **0.70 à 0.78** : Solvable à vérifier – Risque modéré<br>
-        🟠 **0.78 à 0.85** : Non solvable à vérifier – Risque élevé<br>
+        🟢 **Score < 0.70** : Solvable – Faible risque  
+        🟡 **0.70 à 0.78** : Solvable à vérifier – Risque modéré  
+        🟠 **0.78 à 0.85** : Non solvable à vérifier – Risque élevé  
         🔴 **≥ 0.85** : Non solvable – Très haut risque
         """)
 
@@ -239,7 +239,7 @@ if st.session_state.afficher_donnees and "data" in st.session_state:
 
                         ax.scatter(client_val1, client_val2, color='#d95f02', s=100, label='Client', edgecolor='black', linewidth=1.5, zorder=5)
 
-                        ax.set_title(f"Nuage de points : {var1} vs {var2} (coloré par probabilité de solvabilité)")
+                        ax.set_title(f"Nuage de points : {var1} vs {var2} (coloré par probabilité de non solvabilité)")
                         ax.legend()
                         fig.colorbar(scatter, ax=ax, label="Probabilité de solvabilité")
 
@@ -285,7 +285,7 @@ if st.session_state.afficher_donnees and "data" in st.session_state:
     # Bouton pour prédire la solvabilité
     if st.button("🔮 Prédire la solvabilité",
                  help="Score entre 0 et 1, plus le score s'approche de 1 plus le prêt est risqué"):
-        if 'predition' not in st.session_state or st.session_state.client_id != client_id:
+        if 'prediction' not in st.session_state or st.session_state.client_id != client_id:
             API_PREDICT_URL = "https://p7-ywri.onrender.com/predict"  # URL de ton API
             response = requests.post(API_PREDICT_URL, json={'id_client': client_id})
             if response.status_code == 200:
