@@ -114,13 +114,13 @@ def get_prediction(score):
         st.components.v1.html(gauge.render_embed(), height=400)
 
     with col2:
-        st.markdown("### 🔎 Légende")
+        st.markdown("### 🔎 Légende (risque de crédit)")
         st.markdown("""
-        <span style="color:#4CAF50">🟢 **< 0.70**</span> : Solvable<br>
-        <span style="color:#FFC107">🟡 **0.70 – 0.78**</span> : Solvable à vérifier<br>
-        <span style="color:#FF5722">🟠 **0.78 – 0.85**</span> : Non solvable à vérifier<br>
-        <span style="color:#F44336">🔴 **≥ 0.85**</span> : Non solvable
-        """, unsafe_allow_html=True)
+        🟢 **Score < 0.70** : Solvable – Faible risque<br>
+        🟡 **0.70 à 0.78** : Solvable à vérifier – Risque modéré<br>
+        🟠 **0.78 à 0.85** : Non solvable à vérifier – Risque élevé<br>
+        🔴 **≥ 0.85** : Non solvable – Très haut risque
+        """)
 
 # ---------------------- UI ----------------------
 
@@ -203,7 +203,7 @@ if st.session_state.afficher_donnees and "data" in st.session_state:
                             ax.legend(title="Solvabilité", labels=["Client", "Solvable", "Non solvable"])
 
                             st.pyplot(fig)
-                            st.caption(f"Les distributions montrent les clients solvables et non solvables. La ligne rouge représente la valeur du client.")
+                            st.caption(f"La distribution de `{var}` montre la différence entre clients solvables et non solvables. La ligne rouge indique la position du client (valeur : {client_value}).")
                         else:
                             st.warning(f"Donnée indisponible pour la variable : `{var}`")
                     else:
@@ -244,7 +244,7 @@ if st.session_state.afficher_donnees and "data" in st.session_state:
                         fig.colorbar(scatter, ax=ax, label="Probabilité de solvabilité")
 
                         st.pyplot(fig)
-                        st.caption(f"Le point rouge indique la position du client dans l’espace `{var1}` vs `{var2}`.")
+                        st.caption(f"Position du client : ({var1} = {client_val1}, {var2} = {client_val2}). Couleur = probabilité de non solvabilité.")
                     else:
                         st.warning("Valeur manquante pour le client sur au moins une des deux variables sélectionnées.")
 
